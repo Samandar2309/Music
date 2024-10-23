@@ -5,7 +5,7 @@ FROM python:3.11-slim
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
-    python3-venv \  # Bu qatorda venv ni qo'shing
+    python3-venv \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
