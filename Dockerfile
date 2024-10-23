@@ -1,5 +1,5 @@
 # Python versiyasini tanlang
-FROM python:3.11
+FROM python:3.11.0
 
 # Kerakli tizim kutubxonalarini o'rnating (agar kerak bo'lsa)
 RUN apt-get update && apt-get install -y \
