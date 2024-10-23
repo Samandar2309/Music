@@ -1,5 +1,5 @@
-# Python versiyasini tanlang
-FROM python:3.12-slim
+# Python 3.11 versiyasini tanlang
+FROM python:3.11-slim
 
 # Kerakli tizim kutubxonalarini o'rnating (agar kerak bo'lsa)
 RUN apt-get update && apt-get install -y \
@@ -16,7 +16,7 @@ COPY requirements.txt .
 
 # Virtual muhitni yaratish va kutubxonalarni o'rnatish
 RUN python -m venv /opt/venv \
-    && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
+    && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt || { echo "Installation failed"; exit 1; }
 
 # Dasturni ko'chirish
 COPY . .
