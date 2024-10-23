@@ -1,5 +1,5 @@
 # Python versiyasini tanlang
-FROM python:3.11-slim
+FROM python:3.11
 
 # Kerakli tizim kutubxonalarini o'rnating (agar kerak bo'lsa)
 RUN apt-get update && apt-get install -y \
@@ -15,9 +15,11 @@ WORKDIR /Music
 # requirements.txt faylini ko'chiring
 COPY requirements.txt .
 
-# Virtual muhitni yaratish va kutubxonalarni o'rnatish
-RUN python -m venv /opt/venv \
-    && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt || { echo "Installation failed"; exit 1; }
+# Virtual muhitni yaratish
+RUN python -m venv /opt/venv
+
+# Kutubxonalarni o'rnatish
+RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
 # Dasturni ko'chirish
 COPY . .
