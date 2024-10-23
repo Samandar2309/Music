@@ -1,7 +1,7 @@
 # Python versiyasini tanlang
 FROM python:3.11.0
 
-# Kerakli tizim kutubxonalarini o'rnating (agar kerak bo'lsa)
+# Kerakli tizim kutubxonalarini o'rnating
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
@@ -17,6 +17,9 @@ COPY requirements.txt .
 
 # Virtual muhitni yaratish
 RUN python -m venv /opt/venv
+
+# pip ni yangilang
+RUN /opt/venv/bin/python -m pip install --upgrade pip
 
 # Kutubxonalarni o'rnatish
 RUN /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
