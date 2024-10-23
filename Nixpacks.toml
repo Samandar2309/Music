@@ -1,10 +1,9 @@
-# Nixpacks.toml
 [build]
   builder = "python3"
   command = "pip install -r requirements.txt"
 
 [deploy]
-  start = "python spofity.py"
+  start = "gunicorn app:app"  # Agar 'app' sizning ilovangiz bo'lsa
 
-start = "gunicorn app:app"
-
+# Buni olib tashlang, chunki u redundant
+# start = "python spofity.py"
