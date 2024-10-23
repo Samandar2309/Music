@@ -1,20 +1,25 @@
+# Python versiyasini tanlang
 FROM python:3.12-slim
 
-# Ish joyini o'rnatish
-WORKDIR /app
+# Kerakli tizim kutubxonalarini o'rnating (agar kerak bo'lsa)
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# Talab qilingan kutubxonalarni ko'chirish
+# Ishchi katalogini yaratish
+WORKDIR /Music
+
+# requirements.txt faylini ko'chiring
 COPY requirements.txt .
-
-# PIP cache uchun katalogni yaratish
-RUN mkdir -p /root/.cache/pip
 
 # Virtual muhitni yaratish va kutubxonalarni o'rnatish
 RUN python -m venv /opt/venv \
     && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt
 
-# Kod fayllarini ko'chirish
+# Dasturni ko'chirish
 COPY . .
 
-# Asosiy dastur faylini ishga tushirish
+# Kontainer ishga tushganda qaysi komandani bajarsin
 CMD ["/opt/venv/bin/python", "spofity.py"]

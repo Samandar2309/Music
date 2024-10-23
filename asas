@@ -1,0 +1,37 @@
+[1mdiff --git a/Dockerfile b/Dockerfile[m
+[1mindex 6b510d7..7e74b6a 100644[m
+[1m--- a/Dockerfile[m
+[1m+++ b/Dockerfile[m
+[36m@@ -1,20 +1,25 @@[m
+[32m+[m[32m# Python versiyasini tanlang[m
+ FROM python:3.12-slim[m
+ [m
+[31m-# Ish joyini o'rnatish[m
+[32m+[m[32m# Kerakli tizim kutubxonalarini o'rnating (agar kerak bo'lsa)[m
+[32m+[m[32mRUN apt-get update && apt-get install -y \[m
+[32m+[m[32m    gcc \[m
+[32m+[m[32m    python3-dev \[m
+[32m+[m[32m    && apt-get clean \[m
+[32m+[m[32m    && rm -rf /var/lib/apt/lists/*[m
+[32m+[m
+[32m+[m[32m# Ishchi katalogini yaratish[m
+ WORKDIR /app[m
+ [m
+[31m-# Talab qilingan kutubxonalarni ko'chirish[m
+[32m+[m[32m# requirements.txt faylini ko'chiring[m
+ COPY requirements.txt .[m
+ [m
+[31m-# PIP cache uchun katalogni yaratish[m
+[31m-RUN mkdir -p /root/.cache/pip[m
+[31m-[m
+ # Virtual muhitni yaratish va kutubxonalarni o'rnatish[m
+ RUN python -m venv /opt/venv \[m
+     && /opt/venv/bin/pip install --no-cache-dir -r requirements.txt[m
+ [m
+[31m-# Kod fayllarini ko'chirish[m
+[32m+[m[32m# Dasturni ko'chirish[m
+ COPY . .[m
+ [m
+[31m-# Asosiy dastur faylini ishga tushirish[m
+[32m+[m[32m# Kontainer ishga tushganda qaysi komandani bajarsin[m
+ CMD ["/opt/venv/bin/python", "spofity.py"][m
