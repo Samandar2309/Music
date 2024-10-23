@@ -3,4 +3,4 @@
   command = "pip install -r requirements.txt"
 
 [deploy]
-  start = "gunicorn spofity"  # Flask yoki FastAPI ilovangizni ishga tushirish
+  start = "python spofity.py"
