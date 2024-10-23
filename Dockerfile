@@ -1,10 +1,11 @@
-# Python 3.11 versiyasini tanlang
+# Python versiyasini tanlang
 FROM python:3.11-slim
 
 # Kerakli tizim kutubxonalarini o'rnating (agar kerak bo'lsa)
 RUN apt-get update && apt-get install -y \
     gcc \
     python3-dev \
+    python3-venv \  # Bu qatorda venv ni qo'shing
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
