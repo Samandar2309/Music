@@ -25,7 +25,9 @@ def clean_filename(filename):
     # Fayl nomlaridan maxsus belgilarni olib tashlaydi
     # Maxsus belgilarni olib tashlash uchun yanada kengroq regex qo'llaniladi
     return re.sub(r'[<>:"/\\|?*]', '', filename).strip()  # Strip bo'sh joylarni olib tashlaydi
-
+@dp.message_handler(commands=['start'])
+async def start(message: types.Message):
+    await message.reply("Assalamu alaykum men sizga musiqa topishda yordam beraman:")
 
 @dp.callback_query_handler(lambda call: call.data.startswith('link'))
 async def handle_search_result(call: types.CallbackQuery):
