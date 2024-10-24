@@ -49,7 +49,7 @@ async def handle_search_result(call: types.CallbackQuery):
 # Video va musiqa yuklash uchun yordamchi funksiya
 def download_media(link, format_type='audio'):
     ydl_opts = {
-        'ffmpeg_location': r'D:\TestBot\ffmpeg-master-latest-win64-gpl-shared\bin',
+        'ffmpeg_location': r'D:/TestBot/ffmpeg-master-latest-win64-gpl-shared/bin/',
         'format': 'bestaudio/best',
         'outtmpl': 'audios/%(title)s.%(ext)s',
         'postprocessors': [{
