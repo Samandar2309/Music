@@ -6,6 +6,7 @@ from aiogram.utils import executor
 from googleapiclient.discovery import build
 import os
 import re
+import asyncio
 
 # Tokeningizni kiriting
 API_TOKEN = '6901637071:AAGUjoH4b1daS5dhfFT15tgpMVnNxzZxzx8'  # Botingizning haqiqiy API tokenini qo'shing
@@ -23,8 +24,8 @@ cache = redis.Redis(host='localhost', port=6379, db=0)
 
 def clean_filename(filename):
     # Fayl nomlaridan maxsus belgilarni olib tashlaydi
-    # Maxsus belgilarni olib tashlash uchun yanada kengroq regex qo'llaniladi
-    return re.sub(r'[<>:"/\\|?*]', '', filename).strip()  # Strip bo'sh joylarni olib tashlaydi
+    return re.sub(r'[<>:"/\\|?*]', '', filename).strip()
+
 @dp.message_handler(commands=['start'])
 async def start(message: types.Message):
     await message.reply("Assalamu alaykum men sizga musiqa topishda yordam beraman:")
@@ -35,44 +36,15 @@ async def handle_search_result(call: types.CallbackQuery):
 
     await call.answer(f'Siz quyidagi musiqani tanladingiz: {link}')
 
-    # Agar Instagram video linki bo'lsa, avval yuklash
-    if "instagram.com" in link:
-        video_title, video_file = await download_instagram_video(link)
+    # Musiqa yuklab olish
+    download_path = await download_media_async(link)
 
-        # Yuklab olingan faylni tekshirish va yuborish
-        if os.path.exists(video_file):
-            with open(video_file, 'rb') as video:
-                await bot.send_video(call.from_user.id, video=video, caption=f'Yuklab olingan video: {video_title}')
-        else:
-            await call.answer("Video fayl topilmadi, qayta urinib ko'ring.")
+    # Yuklab olingan faylni tekshirish
+    if os.path.exists(download_path):
+        with open(download_path, 'rb') as audio_file:
+            await bot.send_audio(call.from_user.id, audio=audio_file, caption=f'Yuklab olingan: {download_path}')
     else:
-        # Boshqa musiqalarni yuklab olish
-        download_path = download_media(link, format_type='audio')
-
-        if os.path.exists(download_path):
-            with open(download_path, 'rb') as audio_file:
-                await bot.send_audio(call.from_user.id, audio=audio_file,
-                                     caption=f'Yuklab olingan musiqa: {download_path}')
-        else:
-            await call.answer("Musiqa fayli topilmadi, qayta urinib ko'ring.")
-
-
-async def download_instagram_video(url):
-    ydl_opts = {
-        'ffmpeg_location': r'D:\TestBot\ffmpeg-master-latest-win64-gpl-shared\bin',
-        'format': 'bestvideo+bestaudio/best',
-        'outtmpl': 'downloads/%(title)s.%(ext)s',
-        'quiet': True,
-        'noplaylist': True,
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        video_title = clean_filename(info['title'])  # Fayl nomini tozalash
-        video_file = f"downloads/{video_title}.{info['ext']}"
-        return video_title, video_file
-
-# Instagram musiqasini yuklash uchun yordamchi funksiya
-
+        await call.answer("Fayl topilmadi, qayta urinib ko'ring.")
 
 # Video va musiqa yuklash uchun yordamchi funksiya
 def download_media(link, format_type='audio'):
@@ -91,7 +63,6 @@ def download_media(link, format_type='audio'):
         info_dict = ydl.extract_info(link, download=True)
         title = clean_filename(info_dict.get('title', 'Untitled'))  # Fayl nomini tozalash
         return f'audios/{title}.mp3'  # Tozalangan fayl nomini ishlatish
-
 
 # Musiqa va video qidirish
 def search_youtube(query, page_token=None):
@@ -132,7 +103,6 @@ async def send_search_results(message, query, search_results, next_page_token, p
          enumerate(search_results)]
     )
 
-    # Eski natijani o'chirish
     await message.answer(results_text)
 
     markup = InlineKeyboardMarkup()
@@ -156,22 +126,10 @@ async def send_search_results(message, query, search_results, next_page_token, p
 
     await message.answer("Natijalar:", reply_markup=markup)
 
-# Qidiruv natijalarini ishlatish
-@dp.callback_query_handler(lambda call: call.data.startswith('link'))
-async def handle_search_result(call: types.CallbackQuery):
-    _, _, link = call.data.split('_')
-
-    await call.answer(f'Siz quyidagi musiqani tanladingiz: {link}')
-
-    # Musiqa yuklab olish
-    download_path = download_media(link, format_type='audio')
-
-    # Yuklab olingan faylni tekshirish
-    if os.path.exists(download_path):
-        with open(download_path, 'rb') as audio_file:
-            await bot.send_audio(call.from_user.id, audio=audio_file, caption=f'Yuklab olingan: {download_path}')
-    else:
-        await call.answer("Fayl topilmadi, qayta urinib ko'ring.")
+# Musiqa yuklab olishni asinxron qilish
+async def download_media_async(link, format_type='audio'):
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, download_media, link, format_type)
 
 # Keyingi sahifa tugmasini ishlatish
 @dp.callback_query_handler(lambda call: call.data.startswith('next'))
